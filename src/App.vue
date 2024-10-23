@@ -107,7 +107,7 @@ const aoe2companionApi = async () => {
   })
   const res = await fetch(request)
   const { matches } = await res.json()
-  result.value = JSON.stringify(matches.slice(0, 3), null, 2)
+  result.value = JSON.stringify(matches.slice(0, 10), null, 2)
   matchId.value = matches.at(0).matchId
 
   const record = await api.getMatch(matchId.value)
