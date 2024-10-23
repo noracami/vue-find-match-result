@@ -127,6 +127,32 @@ const functions = ref([
     func: aoe2companionApi,
   },
 ])
+
+import { onMounted } from 'vue'
+
+onMounted(() => {
+  console.log('mounted')
+  console.log(liff.isInClient())
+
+  // liff
+  //   .init({
+  //     liffId: 'liffId-liffId', // Use own liffId
+  //     withLoginOnExternalBrowser: true, // Enable automatic login process
+  //   })
+  //   .then(() => {
+  //     // Start to use liff's api
+  //     console.warn('liff init success')
+  //     window.location.href = 'http://localhost:5173'
+  //   })
+  // // print the environment in which the LIFF app is running
+  console.log('getAppLanguage', liff.getAppLanguage())
+  console.log('getVersion', liff.getVersion())
+  console.log('isInClient', liff.isInClient())
+  console.warn('isInExternalBrowser')
+  // console.log(4, liff.isLoggedIn('2006490154-lNA0bEpk'))
+  console.log('getOS', liff.getOS())
+  console.log('getLineVersion', liff.getLineVersion())
+})
 </script>
 
 <template>
