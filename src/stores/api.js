@@ -1,6 +1,8 @@
 class flaskApi {
   constructor() {
-    this.backendUrl = 'https://backend-aoe-29-matches.hkg1.zeabur.app/api/v1'
+    this.backendUrl = `${import.meta.env.VITE_BACKEND_URL}/api/v1`
+
+    // this.backendUrl = 'https://backend-aoe-29-matches.hkg1.zeabur.app/api/v1'
   }
 
   async getMatch(matchId) {

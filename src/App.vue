@@ -1,24 +1,17 @@
 <script setup>
 import { ref } from 'vue'
 import api from './stores/api'
+console.log('backend url', import.meta.env.VITE_BACKEND_URL)
 const header = ref('the header')
 
-const matchId = ref('')
+// const matchId = ref('')
+const matches = ref([])
+
 const profileId = ref('299982')
 const result = ref('')
 
-const errorAtMatchId = ref(false)
 const errorAtProfileId = ref(false)
-const validateRequiredFields = ({
-  requireMatchId = null,
-  requireProfileId = null,
-}) => {
-  if (requireMatchId && !matchId.value) {
-    result.value = 'match id is required'
-    errorAtMatchId.value = true
-    return false
-  }
-
+const validateRequiredFields = ({ requireProfileId = null }) => {
   if (requireProfileId && !profileId.value) {
     result.value = 'profile id is required'
     errorAtProfileId.value = true
@@ -28,67 +21,12 @@ const validateRequiredFields = ({
   return true
 }
 
-// https://api.ageofempires.com/api/v2/AgeII/GetMPMatchDetail
-// {
-//     "gameId": "343670400",
-//     "game": "age2",
-//     "profileId": "473590"
-// }
-const officialApi = async () => {
-  // reset error status
-  errorAtMatchId.value = errorAtProfileId.value = false
-  if (matchId.value) {
-    const prefetchedMatch = await api.getMatch(matchId.value)
-    if (prefetchedMatch) {
-      result.value = JSON.stringify(prefetchedMatch, null, 2)
-      return
-    }
-  }
-
-  if (
-    !validateRequiredFields({ requireMatchId: true, requireProfileId: true })
-  ) {
-    return
-  }
-
-  const url = 'https://api.ageofempires.com/api/v2/AgeII/GetMPMatchDetail'
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      gameId: matchId.value,
-      game: 'age2',
-      profileId: profileId.value,
-    }),
-  })
-  const data = await res.json()
-  result.value = JSON.stringify(data, null, 2)
-  api.createMatch({ ...data, timestamp: Date.now() })
-}
-const insightApi = () => {
-  // reset error status
-  errorAtMatchId.value = errorAtProfileId.value = false
-  if (!validateRequiredFields({ requireMatchId: true })) {
-    return
-  }
-  result.value = 'insight (coming soon)'
-}
-
 // https://data.aoe2companion.com/api/matches?profile_ids=8864570&leaderboard_ids=unranked
 // .matches | map(select(.matchId == 346524965))[0] | { matchId, teams: [.teams[].teamId], d: .}
 
 const aoe2companionApi = async () => {
   // reset error status
-  errorAtMatchId.value = errorAtProfileId.value = false
-  if (matchId.value) {
-    const prefetchedMatch = await api.getMatch(matchId.value)
-    if (prefetchedMatch) {
-      result.value = JSON.stringify(prefetchedMatch, null, 2)
-      return
-    }
-  }
+  errorAtProfileId.value = false
 
   if (!validateRequiredFields({ requireProfileId: true })) {
     return
@@ -106,21 +44,20 @@ const aoe2companionApi = async () => {
     },
   })
   const res = await fetch(request)
-  const { matches } = await res.json()
-  result.value = JSON.stringify(matches.slice(0, 10), null, 2)
-  matchId.value = matches.at(0).matchId
-
-  const record = await api.getMatch(matchId.value)
-  if (record?.finished) {
-    console.log('match already exists')
-    return
+  const { matches: matchData } = await res.json()
+  const matches = matchData.slice(0, 3)
+  for (const match of matches) {
+    // console.warn('pass' + ' ' + match.matchId)
+    // continue
+    await api.createMatch({ ...match, timestamp: Date.now() })
   }
-  api.createMatch({ ...matches.at(0), timestamp: Date.now() })
+  result.value = JSON.stringify(matches, null, 2)
+
+  console.log('aoe2companionApi completed')
+  console.log('matches', matches)
 }
 
 const functions = ref([
-  { name: '官方 API', description: 'description1', func: officialApi },
-  { name: 'insight', description: 'description2', func: insightApi },
   {
     name: 'aoe2companion',
     description: 'description3',
@@ -132,26 +69,33 @@ import { onMounted } from 'vue'
 
 onMounted(() => {
   console.log('mounted')
-  console.log(liff.isInClient())
+  let liff
+  if (liff) {
+    console.log(liff.isInClient())
 
-  // liff
-  //   .init({
-  //     liffId: 'liffId-liffId', // Use own liffId
-  //     withLoginOnExternalBrowser: true, // Enable automatic login process
-  //   })
-  //   .then(() => {
-  //     // Start to use liff's api
-  //     console.warn('liff init success')
-  //     window.location.href = 'http://localhost:5173'
-  //   })
-  // // print the environment in which the LIFF app is running
-  console.log('getAppLanguage', liff.getAppLanguage())
-  console.log('getVersion', liff.getVersion())
-  console.log('isInClient', liff.isInClient())
-  console.warn('isInExternalBrowser')
-  // console.log(4, liff.isLoggedIn('2006490154-lNA0bEpk'))
-  console.log('getOS', liff.getOS())
-  console.log('getLineVersion', liff.getLineVersion())
+    // liff
+    //   .init({
+    //     liffId: 'liffId-liffId', // Use own liffId
+    //     withLoginOnExternalBrowser: true, // Enable automatic login process
+    //   })
+    //   .then(() => {
+    //     // Start to use liff's api
+    //     console.warn('liff init success')
+    //     window.location.href = 'http://localhost:5173'
+    //   })
+    // // print the environment in which the LIFF app is running
+    console.log('getAppLanguage', liff.getAppLanguage())
+    console.log('getVersion', liff.getVersion())
+    console.log('isInClient', liff.isInClient())
+    console.warn('isInExternalBrowser')
+    // console.log(4, liff.isLoggedIn('2006490154-lNA0bEpk'))
+    console.log('getOS', liff.getOS())
+    console.log('getLineVersion', liff.getLineVersion())
+  }
+
+  api.getMatches().then(data => {
+    matches.value = data.matches
+  })
 })
 </script>
 
@@ -169,17 +113,6 @@ onMounted(() => {
       <div class="container mx-auto text-center">
         <p>command block</p>
         <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
-          <div class="col-span-3">
-            <label class="text-start">
-              <p class="ps-1">match_id、room_id、game_id</p>
-              <input
-                type="text"
-                class="w-full p-1"
-                v-model="matchId"
-                placeholder="game id"
-              />
-            </label>
-          </div>
           <div class="col-span-3">
             <label class="text-start">
               <p class="ps-1">profile_id</p>
@@ -212,7 +145,145 @@ onMounted(() => {
         <textarea name="result" class="w-full p-2" v-model="result"></textarea>
       </div>
     </section>
+    <section class="text-center">
+      <pre>matches columns</pre>
+    </section>
+    <section class="bg-gray-400">
+      <div
+        class="container mx-auto grid grid-cols-1 gap-1 p-2 border-dashed border border-black"
+        v-if="matches.length > 0"
+      >
+        <template
+          v-for="{
+            _id: id,
+            matchId,
+            name: lobby_name,
+            started: match_time,
+            mapName: location,
+            mapImageUrl,
+            teams,
+            victory,
+          } in matches"
+          :key="id"
+        >
+          <div class="border border-black p-1">
+            <p>{{ id }}</p>
+            <img :src="mapImageUrl" alt="" />
+            <div>
+              <pre class="inline">lobby_id: </pre>
+              {{ matchId }}
+            </div>
+            <div>
+              <pre class="inline">lobby_name: </pre>
+              {{ lobby_name }}
+            </div>
+            <div>
+              <pre class="inline">match_time: </pre>
+              {{ match_time }}
+            </div>
+            <div>
+              <pre class="inline">location: </pre>
+              {{ location }}
+            </div>
+            <div>
+              <pre class="inline">match_result: </pre>
+              {{ `team ${victory} win` }}
+            </div>
+            <div class="border border-dashed border-gray-600 p-1">
+              <pre class="inline">teams: </pre>
+              <template v-for="{ players, teamId } in teams" :key="teamId">
+                <div class="border border-dashed border-sky-500 p-1">
+                  <pre class="inline">team {{ teamId }}</pre>
+                  <template
+                    v-for="{
+                      profileId: user_id,
+                      color: color_code,
+                      colorHex,
+                      name,
+                      civImageUrl,
+                      civName: civilization,
+                      rating,
+                      ratingDiff: rating_change,
+                      bonus,
+                    } in players"
+                    :key="user_id"
+                  >
+                    <div class="h-12 w-fit flex">
+                      <div
+                        class="bg-from-data p-3 aspect-square flex justify-center items-center"
+                        :style="`background-color: ${colorHex}`"
+                      >
+                        {{ color_code }}
+                      </div>
+                      <img :src="civImageUrl" alt="" class="h-full w-full" />
+                    </div>
+                    <div>
+                      <pre class="inline">user_id: </pre>
+                      {{ user_id }}
+                    </div>
+                    <div>
+                      <pre class="inline">color_code: </pre>
+                      {{ color_code }}
+                    </div>
+                    <div>
+                      <pre class="inline">name: </pre>
+                      {{ name }}
+                    </div>
+                    <div>
+                      <pre class="inline">civilization: </pre>
+                      {{ civilization }}
+                    </div>
+                    <div>
+                      <pre class="inline">rating: </pre>
+                      {{ rating }}
+                    </div>
+                    <div>
+                      <pre class="inline">rating_change: </pre>
+                      {{ rating_change }}
+                    </div>
+                    <div>
+                      <pre class="inline">bonus: </pre>
+                      {{ bonus }}
+                    </div>
+                  </template>
+                </div>
+              </template>
+            </div>
+            <!-- "civ": "malay",
+          "civImageUrl": "https://frontend.cdn.aoe2companion.com/public/aoe2/de/civilizations/malay.png",
+          "civName": "Malay", -->
+
+            <!-- "players": [
+        {
+          "rating": "1250",
+          "rating_change": "-11",
+          "bonus": ""
+        }, -->
+          </div>
+        </template>
+      </div>
+      <pre class="text-start">{{ JSON.stringify(matches[0], null, 2) }}</pre>
+    </section>
+    <section class="bg-purple-200 p-3">
+      <div class="container mx-auto text-center">
+        <p>result block</p>
+        <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
+          <div class="col-span-3">
+            <p>matches</p>
+            <ul>
+              <li v-for="match in matches" :key="match.matchId">
+                <p>{{ match.matchId }}</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 </template>
 
-<style scoped></style>
+<style scoped>
+.bg-from-data {
+  background-color: var(--color);
+}
+</style>
