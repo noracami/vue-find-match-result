@@ -282,11 +282,11 @@ onMounted(() => {
         </div>
       </div>
     </section>
-    <section>
-      <div class="bg-slate-300 p-3">
+    <section class="bg-slate-300 p-3 text-center">
+      <div class="">
         <p>liff block</p>
       </div>
-      <div class="text-center text-blue-600">
+      <div class="text-blue-700">
         <p>isLiff: {{ isLiff }}</p>
       </div>
     </section>
