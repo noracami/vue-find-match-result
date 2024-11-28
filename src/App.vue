@@ -1,61 +1,61 @@
 <script setup>
-import { ref } from 'vue'
-import api from './stores/api'
-console.log('backend url', import.meta.env.VITE_BACKEND_URL)
-const header = ref('the header')
+import { ref } from 'vue';
+import api from './stores/api';
+console.log('backend url', import.meta.env.VITE_BACKEND_URL);
+const header = ref('the header');
 
 // const matchId = ref('')
-const matches = ref([])
+const matches = ref([]);
 
-const profileId = ref('299982')
-const result = ref('')
+const profileId = ref('299982');
+const result = ref('');
 
-const errorAtProfileId = ref(false)
+const errorAtProfileId = ref(false);
 const validateRequiredFields = ({ requireProfileId = null }) => {
   if (requireProfileId && !profileId.value) {
-    result.value = 'profile id is required'
-    errorAtProfileId.value = true
-    return false
+    result.value = 'profile id is required';
+    errorAtProfileId.value = true;
+    return false;
   }
 
-  return true
-}
+  return true;
+};
 
 // https://data.aoe2companion.com/api/matches?profile_ids=8864570&leaderboard_ids=unranked
 // .matches | map(select(.matchId == 346524965))[0] | { matchId, teams: [.teams[].teamId], d: .}
 
 const aoe2companionApi = async () => {
   // reset error status
-  errorAtProfileId.value = false
+  errorAtProfileId.value = false;
 
   if (!validateRequiredFields({ requireProfileId: true })) {
-    return
+    return;
   }
 
-  const url = 'https://data.aoe2companion.com/api/matches'
+  const url = 'https://data.aoe2companion.com/api/matches';
   const params = new URLSearchParams({
     profile_ids: profileId.value,
     // leaderboard_ids: 'unranked',
-  })
+  });
   const request = new Request(`${url}?${params}`, {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
-  })
-  const res = await fetch(request)
-  const { matches: matchData } = await res.json()
-  const matches = matchData.slice(0, 3)
+  });
+  const res = await fetch(request);
+  const { matches: matchData } = await res.json();
+  const matches = matchData.slice(0, 3);
   for (const match of matches) {
     // console.warn('pass' + ' ' + match.matchId)
     // continue
-    await api.createMatch({ ...match, timestamp: Date.now() })
+    await api.createMatch({ ...match, timestamp: Date.now() });
   }
-  result.value = JSON.stringify(matches, null, 2)
+  result.value = JSON.stringify(matches, null, 2);
 
-  console.log('aoe2companionApi completed')
-  console.log('matches', matches)
-}
+  console.log('aoe2companionApi completed');
+  console.log('matches', matches);
+};
 
 const functions = ref([
   {
@@ -63,15 +63,18 @@ const functions = ref([
     description: 'description3',
     func: aoe2companionApi,
   },
-])
+]);
 
-import { onMounted } from 'vue'
+const isLiff = ref(false);
+
+import { onMounted } from 'vue';
 
 onMounted(() => {
-  console.log('mounted')
-  let liff
+  console.log('mounted');
+  let liff;
   if (liff) {
-    console.log(liff.isInClient())
+    isLiff.value = true;
+    console.log(liff.isInClient());
 
     // liff
     //   .init({
@@ -84,19 +87,19 @@ onMounted(() => {
     //     window.location.href = 'http://localhost:5173'
     //   })
     // // print the environment in which the LIFF app is running
-    console.log('getAppLanguage', liff.getAppLanguage())
-    console.log('getVersion', liff.getVersion())
-    console.log('isInClient', liff.isInClient())
-    console.warn('isInExternalBrowser')
+    console.log('getAppLanguage', liff.getAppLanguage());
+    console.log('getVersion', liff.getVersion());
+    console.log('isInClient', liff.isInClient());
+    console.warn('isInExternalBrowser');
     // console.log(4, liff.isLoggedIn('2006490154-lNA0bEpk'))
-    console.log('getOS', liff.getOS())
-    console.log('getLineVersion', liff.getLineVersion())
+    console.log('getOS', liff.getOS());
+    console.log('getLineVersion', liff.getLineVersion());
   }
 
-  api.getMatches().then(data => {
-    matches.value = data.matches
-  })
-})
+  // api.getMatches().then(data => {
+  //   matches.value = data.matches;
+  // });
+});
 </script>
 
 <template>
@@ -277,6 +280,14 @@ onMounted(() => {
             </ul>
           </div>
         </div>
+      </div>
+    </section>
+    <section>
+      <div class="bg-slate-300 p-3">
+        <p>liff block</p>
+      </div>
+      <div class="text-center text-blue-600">
+        <p>isLiff: {{ isLiff }}</p>
       </div>
     </section>
   </main>
