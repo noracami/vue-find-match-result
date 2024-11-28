@@ -47,8 +47,6 @@ const aoe2companionApi = async () => {
   const { matches: matchData } = await res.json();
   const matches = matchData.slice(0, 3);
   for (const match of matches) {
-    // console.warn('pass' + ' ' + match.matchId)
-    // continue
     await api.createMatch({ ...match, timestamp: Date.now() });
   }
   result.value = JSON.stringify(matches, null, 2);
@@ -67,6 +65,8 @@ const functions = ref([
 
 const isLiffImport = ref(false);
 const isLiff = ref(false);
+const isLiffLoggedIn = ref(false);
+const liffData = ref([]);
 
 import { onMounted } from 'vue';
 
@@ -79,24 +79,40 @@ onMounted(() => {
     } else {
       console.warn('isInExternalBrowser');
     }
-    // liff
-    //   .init({
-    //     liffId: 'liffId-liffId', // Use own liffId
-    //     withLoginOnExternalBrowser: true, // Enable automatic login process
-    //   })
+    // liffData.value['getOS'] = liff.getOS();
+    // liffData.value['getAppLanguage'] = liff.getAppLanguage();
+    // liffData.value['getLanguage'] = liff.getLanguage();
+    // liffData.value['getVersion'] = liff.getVersion();
+    // liffData.value['getLineVersion'] = liff.getLineVersion();
+    // liffData.value['isInClient'] = liff.isInClient();
+    // liffData.value['isLoggedIn'] = liff.isLoggedIn();
+    liffData.push(['getOS', liff.getOS()]);
+    liffData.push(['getAppLanguage', liff.getAppLanguage()]);
+    liffData.push(['getLanguage', liff.getLanguage()]);
+    liffData.push(['getVersion', liff.getVersion()]);
+    liffData.push(['getLineVersion', liff.getLineVersion()]);
+    liffData.push(['isInClient', liff.isInClient()]);
+    liffData.push(['isLoggedIn', liff.isLoggedIn()]);
+    liff
+      .init({
+        liffId: '2006490154-lNA0bEpk', // Use own liffId
+        withLoginOnExternalBrowser: true, // Enable automatic login process
+      })
+      .then(() => {
+        console.warn('liff init success');
+        isLiffLoggedIn.value = true;
+      });
     //   .then(() => {
     //     // Start to use liff's api
     //     console.warn('liff init success')
     //     window.location.href = 'http://localhost:5173'
     //   })
     // // print the environment in which the LIFF app is running
-    console.log('getAppLanguage', liff.getAppLanguage());
-    console.log('getVersion', liff.getVersion());
-    console.log('isInClient', liff.isInClient());
-
-    // console.log(4, liff.isLoggedIn('2006490154-lNA0bEpk'))
-    console.log('getOS', liff.getOS());
-    console.log('getLineVersion', liff.getLineVersion());
+    // console.log('getAppLanguage', liff.getAppLanguage());
+    // console.log('getVersion', liff.getVersion());
+    // console.log('isInClient', liff.isInClient());
+    // console.log('getOS', liff.getOS());
+    // console.log('getLineVersion', liff.getLineVersion());
   }
 
   // api.getMatches().then(data => {
@@ -291,8 +307,12 @@ onMounted(() => {
       </div>
       <div class="text-blue-700">
         <p>is Liff Import: {{ isLiffImport }}</p>
+        <p>is Liff Logged In: {{ isLiffLoggedIn }}</p>
         <p>is Liff App: {{ isLiff }}</p>
       </div>
+    </section>
+    <section class="bg-green-300 p-3 text-center">
+      <p v-for="(key, value) of liffData" :key="key">{{ key }}: {{ value }}</p>
     </section>
   </main>
 </template>
