@@ -105,16 +105,17 @@ onMounted(() => {
           name: 'scanCode',
           description: 'description2',
           func: () => {
-            liff
-              .scanCodeV2()
-              .then(result => {
-                liffData.value.push(['scanCodeV2', result]);
-                // result = { value: "" }
-              })
-              .catch(error => {
-                console.log('error', error);
-                errorMessages.value.push(error.message);
-              });
+            liffData.value.push(['test', new Date()]);
+            // liff
+            //   .scanCodeV2()
+            //   .then(result => {
+            //     liffData.value.push(['scanCodeV2', result]);
+            //     // result = { value: "" }
+            //   })
+            //   .catch(error => {
+            //     console.log('error', error);
+            //     errorMessages.value.push(error.message);
+            //   });
           },
         });
       })
