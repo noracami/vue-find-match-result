@@ -2,7 +2,7 @@
 import { ref } from 'vue';
 import api from './stores/api';
 console.log('backend url', import.meta.env.VITE_BACKEND_URL);
-const liffId = '2006490154-oWD68EgW';
+const liffId = ref('2006490154-oWD68EgW');
 const version_number = ref(localStorage.getItem('version_number') || 0);
 fetch(
   `https://gist.githubusercontent.com/noracami/e317299b76908c29e59789c83daedb31/raw?t=${Date.now()}`,
@@ -105,7 +105,7 @@ const init = async () => {
     liffData.value.push(['isInClient', liff.isInClient()]);
     // Using a Promise object
     await liff.init({
-      liffId, // Use own liffId
+      liffId: liffId.value, // Use own liffId
       withLoginOnExternalBrowser: false, // Enable automatic login process
     });
 
@@ -405,6 +405,7 @@ onMounted(() => {
     </section>
     <section class="p-3 text-center">
       <p>current version: v{{ version_number }}</p>
+      <p>liffId: {{ liffId }}</p>
     </section>
   </main>
 </template>
