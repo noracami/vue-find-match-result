@@ -73,8 +73,8 @@ const isLiffInitialized = ref(false);
 const liffData = ref([]);
 const errorMessages = ref([]);
 
-const scanCode = () => {
-  liff
+const scanCode = _liff => () => {
+  _liff
     .scanCodeV2()
     .then(result => {
       liffData.value.push(['scanCodeV2', result]);
@@ -117,7 +117,7 @@ onMounted(() => {
         functions.value.push({
           name: 'scanCode',
           description: 'description2',
-          func: scanCode,
+          func: scanCode(liff),
         });
       })
       .catch(err => {
