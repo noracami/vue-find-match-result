@@ -88,9 +88,10 @@ const init = () => {
     liffData.value.push(['getLineVersion', liff.getLineVersion()]);
     liffData.value.push(['isInClient', liff.isInClient()]);
     // Using a Promise object
+    const liffId = '2006490154-P3132Qb6';
     liff
       .init({
-        liffId: '2006490154-lNA0bEpk', // Use own liffId
+        liffId, // Use own liffId
         withLoginOnExternalBrowser: false, // Enable automatic login process
       })
       .then(() => {
