@@ -95,6 +95,7 @@ onMounted(() => {
     liff
       .init({
         liffId: '2006490154-lNA0bEpk', // Use own liffId
+        withLoginOnExternalBrowser: true, // Enable automatic login process
       })
       .then(() => {
         // Start to use liff's api
