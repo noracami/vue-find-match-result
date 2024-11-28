@@ -61,11 +61,11 @@ const functions = ref([
   //   description: 'description3',
   //   func: aoe2companionApi,
   // },
-  {
-    name: 'scanCode',
-    description: 'description2',
-    func: scanCode,
-  },
+  // {
+  //   name: 'scanCode',
+  //   description: 'description2',
+  //   func: scanCode,
+  // },
 ]);
 
 const isLiffImport = ref(false);
@@ -113,6 +113,12 @@ onMounted(() => {
         // Start to use liff's api
         console.warn('liff init success');
         isLiffInitialized.value = true;
+        // add scanCode to functions
+        functions.value.push({
+          name: 'scanCode',
+          description: 'description2',
+          func: scanCode,
+        });
       })
       .catch(err => {
         // Error happens during initialization
