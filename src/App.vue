@@ -103,11 +103,6 @@ const init = async () => {
     liffData.value.push(['getVersion', liff.getVersion()]);
     liffData.value.push(['getLineVersion', liff.getLineVersion()]);
     liffData.value.push(['isInClient', liff.isInClient()]);
-    // Using a Promise object
-    await liff.init({
-      liffId: liffId.value, // Use own liffId
-      withLoginOnExternalBrowser: false, // Enable automatic login process
-    });
 
     console.warn('liff init success');
     isLiffInitialized.value = true;
@@ -204,7 +199,19 @@ import { onMounted } from 'vue';
 
 onMounted(() => {
   console.log('mounted');
-  init();
+
+  // Using a Promise object
+  liff.init(
+    {
+      liffId: liffId.value, // Use own liffId
+      withLoginOnExternalBrowser: false, // Enable automatic login process
+    },
+    init,
+    error => {
+      console.error('liff init error', error);
+      errorMessages.value.push(error.message);
+    },
+  );
 });
 </script>
 
