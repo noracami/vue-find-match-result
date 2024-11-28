@@ -61,12 +61,30 @@ const functions = ref([
   //   description: 'description3',
   //   func: aoe2companionApi,
   // },
+  {
+    name: 'scanCode',
+    description: 'description2',
+    func: scanCode,
+  },
 ]);
 
 const isLiffImport = ref(false);
-const isLiff = ref(false);
-const isLiffLoggedIn = ref(false);
+const isLiffInitialized = ref(false);
 const liffData = ref([]);
+const errorMessages = ref([]);
+
+const scanCode = () => {
+  liff
+    .scanCodeV2()
+    .then(result => {
+      liffData.value.push(['scanCodeV2', result]);
+      // result = { value: "" }
+    })
+    .catch(error => {
+      console.log('error', error);
+      errorMessages.value.push(error.message);
+    });
+};
 
 import { onMounted } from 'vue';
 
@@ -86,15 +104,30 @@ onMounted(() => {
     liffData.value.push(['getLineVersion', liff.getLineVersion()]);
     liffData.value.push(['isInClient', liff.isInClient()]);
     liffData.value.push(['isLoggedIn', liff.isLoggedIn()]);
+    // Using a Promise object
     liff
       .init({
         liffId: '2006490154-lNA0bEpk', // Use own liffId
-        withLoginOnExternalBrowser: true, // Enable automatic login process
       })
       .then(() => {
+        // Start to use liff's api
         console.warn('liff init success');
-        isLiffLoggedIn.value = true;
+        isLiffInitialized.value = true;
+      })
+      .catch(err => {
+        // Error happens during initialization
+        console.log(err.code, err.message);
+        errorMessages.value.push(err.message);
       });
+    // liff
+    //   .init({
+    //     liffId: '2006490154-lNA0bEpk', // Use own liffId
+    //     withLoginOnExternalBrowser: true, // Enable automatic login process
+    //   })
+    //   .then(() => {
+    //     console.warn('liff init success');
+    //     isLiffInitialized.value = true;
+    //   });
     //   .then(() => {
     //     // Start to use liff's api
     //     console.warn('liff init success')
@@ -300,12 +333,14 @@ onMounted(() => {
       </div>
       <div class="text-blue-700">
         <p>is Liff Import: {{ isLiffImport }}</p>
-        <p>is Liff Logged In: {{ isLiffLoggedIn }}</p>
-        <p>is Liff App: {{ isLiff }}</p>
+        <p>is Liff Logged In: {{ isLiffInitialized }}</p>
       </div>
     </section>
     <section class="bg-green-300 p-3 text-center">
       <p v-for="[key, value] of liffData" :key="key">{{ key }}: {{ value }}</p>
+    </section>
+    <section class="bg-red-300 p-3 text-center">
+      <p v-for="message in errorMessages" :key="message">{{ message }}</p>
     </section>
   </main>
 </template>
