@@ -130,6 +130,23 @@ const init = () => {
           .then(result => {
             // result = { value: "" }
             liffData.value.push(['scanCodeV2', result]);
+            const endpoint = 'https://reserve.lig.com.tw/api/v1/play_records';
+            fetch(endpoint, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                game: 'AG',
+                score: 100,
+                display_name: 'test',
+                line_id: 'test',
+              }),
+            })
+              .then(response => response.json())
+              .then(data => {
+                liffData.value.push(['api response', data]);
+              });
           })
           .catch(error => {
             console.log('error', error);
