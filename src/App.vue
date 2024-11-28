@@ -65,17 +65,20 @@ const functions = ref([
   },
 ]);
 
+const isLiffImport = ref(false);
 const isLiff = ref(false);
 
 import { onMounted } from 'vue';
 
 onMounted(() => {
   console.log('mounted');
-  let liff;
   if (liff) {
-    isLiff.value = true;
-    console.log(liff.isInClient());
-
+    isLiffImport.value = true;
+    if (liff.isInClient()) {
+      console.warn('isInClient');
+    } else {
+      console.warn('isInExternalBrowser');
+    }
     // liff
     //   .init({
     //     liffId: 'liffId-liffId', // Use own liffId
@@ -90,7 +93,7 @@ onMounted(() => {
     console.log('getAppLanguage', liff.getAppLanguage());
     console.log('getVersion', liff.getVersion());
     console.log('isInClient', liff.isInClient());
-    console.warn('isInExternalBrowser');
+
     // console.log(4, liff.isLoggedIn('2006490154-lNA0bEpk'))
     console.log('getOS', liff.getOS());
     console.log('getLineVersion', liff.getLineVersion());
@@ -287,7 +290,8 @@ onMounted(() => {
         <p>liff block</p>
       </div>
       <div class="text-blue-700">
-        <p>isLiff: {{ isLiff }}</p>
+        <p>is Liff Import: {{ isLiffImport }}</p>
+        <p>is Liff App: {{ isLiff }}</p>
       </div>
     </section>
   </main>
