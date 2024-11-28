@@ -73,10 +73,7 @@ const isLiffInitialized = ref(false);
 const liffData = ref([]);
 const errorMessages = ref([]);
 
-import { onMounted } from 'vue';
-
-onMounted(() => {
-  console.log('mounted');
+const init = async () => {
   if (liff) {
     isLiffImport.value = true;
     if (liff.isInClient()) {
@@ -92,39 +89,33 @@ onMounted(() => {
     liffData.value.push(['isInClient', liff.isInClient()]);
     liffData.value.push(['isLoggedIn', liff.isLoggedIn()]);
     // Using a Promise object
-    liff
-      .init({
-        liffId: '2006490154-lNA0bEpk', // Use own liffId
-        withLoginOnExternalBrowser: true, // Enable automatic login process
-      })
-      .then(() => {
-        // Start to use liff's api
-        console.warn('liff init success');
-        isLiffInitialized.value = true;
-        // add scanCode to functions
-        functions.value.push({
-          name: 'scanCode',
-          description: 'description2',
-          func: () => {
-            liffData.value.push(['test', new Date()]);
-            // liff
-            //   .scanCodeV2()
-            //   .then(result => {
-            //     liffData.value.push(['scanCodeV2', result]);
-            //     // result = { value: "" }
-            //   })
-            //   .catch(error => {
-            //     console.log('error', error);
-            //     errorMessages.value.push(error.message);
-            //   });
-          },
-        });
-      })
-      .catch(err => {
-        // Error happens during initialization
-        console.log(err.code, err.message);
-        errorMessages.value.push(err.message);
-      });
+    await liff.init({
+      liffId: '2006490154-lNA0bEpk', // Use own liffId
+      withLoginOnExternalBrowser: true, // Enable automatic login process
+    });
+
+    console.warn('liff init success');
+    isLiffInitialized.value = true;
+
+    // add scanCode to functions
+    functions.value.push({
+      name: 'scanCode',
+      description: 'description2',
+      func: () => {
+        liffData.value.push(['test', new Date()]);
+        // liff
+        //   .scanCodeV2()
+        //   .then(result => {
+        //     liffData.value.push(['scanCodeV2', result]);
+        //     // result = { value: "" }
+        //   })
+        //   .catch(error => {
+        //     console.log('error', error);
+        //     errorMessages.value.push(error.message);
+        //   });
+      },
+    });
+
     // liff
     //   .init({
     //     liffId: '2006490154-lNA0bEpk', // Use own liffId
@@ -146,6 +137,13 @@ onMounted(() => {
     // console.log('getOS', liff.getOS());
     // console.log('getLineVersion', liff.getLineVersion());
   }
+};
+
+import { onMounted } from 'vue';
+
+onMounted(() => {
+  console.log('mounted');
+  init();
 
   // api.getMatches().then(data => {
   //   matches.value = data.matches;
