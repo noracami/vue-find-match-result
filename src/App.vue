@@ -73,7 +73,7 @@ const isLiffInitialized = ref(false);
 const liffData = ref([]);
 const errorMessages = ref([]);
 
-const init = async () => {
+const init = () => {
   if (liff) {
     isLiffImport.value = true;
     if (liff.isInClient()) {
@@ -87,55 +87,55 @@ const init = async () => {
     liffData.value.push(['getVersion', liff.getVersion()]);
     liffData.value.push(['getLineVersion', liff.getLineVersion()]);
     liffData.value.push(['isInClient', liff.isInClient()]);
-    liffData.value.push(['isLoggedIn', liff.isLoggedIn()]);
     // Using a Promise object
-    await liff.init({
-      liffId: '2006490154-lNA0bEpk', // Use own liffId
-      withLoginOnExternalBrowser: true, // Enable automatic login process
-    });
+    liff
+      .init({
+        liffId: '2006490154-lNA0bEpk', // Use own liffId
+        withLoginOnExternalBrowser: false, // Enable automatic login process
+      })
+      .then(() => {
+        console.warn('liff init success');
+        isLiffInitialized.value = true;
+        liffData.value.push(['isLoggedIn', liff.isLoggedIn()]);
 
-    console.warn('liff init success');
-    isLiffInitialized.value = true;
+        // add login to functions
+        functions.value.push({
+          name: 'login',
+          description: 'line login',
+          func: () => {
+            const redirectUri = 'https://miao-bao.cc';
+            // liffData.value.push(['redirectUri', 'https://miao-bao.cc']);
+            if (!liff.isLoggedIn()) {
+              liff.login({ redirectUri });
+            } else {
+              liffData.value.push(['login', 'already logged in']);
+            }
+          },
+        });
+      })
+      .catch(error => {
+        console.error('liff init error', error);
+        errorMessages.value.push(error.message);
+      });
 
     // add scanCode to functions
     functions.value.push({
       name: 'scanCode',
       description: 'description2',
       func: () => {
-        liffData.value.push(['test', new Date()]);
-        // liff
-        //   .scanCodeV2()
-        //   .then(result => {
-        //     liffData.value.push(['scanCodeV2', result]);
-        //     // result = { value: "" }
-        //   })
-        //   .catch(error => {
-        //     console.log('error', error);
-        //     errorMessages.value.push(error.message);
-        //   });
+        // liffData.value.push(['test', new Date()]);
+        liff
+          .scanCodeV2()
+          .then(result => {
+            // result = { value: "" }
+            liffData.value.push(['scanCodeV2', result]);
+          })
+          .catch(error => {
+            console.log('error', error);
+            errorMessages.value.push(error.message);
+          });
       },
     });
-
-    // liff
-    //   .init({
-    //     liffId: '2006490154-lNA0bEpk', // Use own liffId
-    //     withLoginOnExternalBrowser: true, // Enable automatic login process
-    //   })
-    //   .then(() => {
-    //     console.warn('liff init success');
-    //     isLiffInitialized.value = true;
-    //   });
-    //   .then(() => {
-    //     // Start to use liff's api
-    //     console.warn('liff init success')
-    //     window.location.href = 'http://localhost:5173'
-    //   })
-    // // print the environment in which the LIFF app is running
-    // console.log('getAppLanguage', liff.getAppLanguage());
-    // console.log('getVersion', liff.getVersion());
-    // console.log('isInClient', liff.isInClient());
-    // console.log('getOS', liff.getOS());
-    // console.log('getLineVersion', liff.getLineVersion());
   }
 };
 
@@ -144,10 +144,6 @@ import { onMounted } from 'vue';
 onMounted(() => {
   console.log('mounted');
   init();
-
-  // api.getMatches().then(data => {
-  //   matches.value = data.matches;
-  // });
 });
 </script>
 
@@ -165,7 +161,7 @@ onMounted(() => {
       <div class="container mx-auto text-center">
         <p>command block</p>
         <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
-          <div class="col-span-3">
+          <div v-if="false" class="col-span-3">
             <label class="text-start">
               <p class="ps-1">profile_id</p>
               <input
@@ -178,7 +174,7 @@ onMounted(() => {
           </div>
           <button
             type="button"
-            class="aspect-square flex flex-col justify-end items-center bg-green-200 p-3 active:transform active:scale-95"
+            class="aspect-square rounded-3xl flex flex-col justify-end items-center bg-green-200 p-3 active:transform active:scale-95"
             v-for="{ name, description, func } of functions"
             :key="name"
             @click="func"
@@ -337,7 +333,7 @@ onMounted(() => {
       </div>
       <div class="text-blue-700">
         <p>is Liff Import: {{ isLiffImport }}</p>
-        <p>is Liff Logged In: {{ isLiffInitialized }}</p>
+        <p>is Liff is initialized: {{ isLiffInitialized }}</p>
       </div>
     </section>
     <section class="bg-green-300 p-3 text-center">
