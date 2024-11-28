@@ -89,7 +89,7 @@ const isLiffInitialized = ref(false);
 const liffData = ref([]);
 const errorMessages = ref([]);
 
-const init = async () => {
+const init = () => {
   if (liff) {
     isLiffImport.value = true;
     if (liff.isInClient()) {
@@ -106,10 +106,12 @@ const init = async () => {
 
     console.warn('liff init success');
     isLiffInitialized.value = true;
-    const isLiffLoggedIn = await liff.isLoggedIn();
-    liffData.value.push(['isLoggedIn', isLiffLoggedIn]);
+    let isLoggedIn;
+    liff.isLoggedIn().then(r => {
+      isLoggedIn = r;
+    liffData.value.push(['isLoggedIn', r]);}
 
-    if (isLiffLoggedIn) {
+    if (isLoggedIn) {
       const profile = await liff.getProfile();
       liffData.value.push(['profile', profile]);
 
