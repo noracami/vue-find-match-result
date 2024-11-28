@@ -73,19 +73,6 @@ const isLiffInitialized = ref(false);
 const liffData = ref([]);
 const errorMessages = ref([]);
 
-const scanCode = _liff => () => {
-  _liff
-    .scanCodeV2()
-    .then(result => {
-      liffData.value.push(['scanCodeV2', result]);
-      // result = { value: "" }
-    })
-    .catch(error => {
-      console.log('error', error);
-      errorMessages.value.push(error.message);
-    });
-};
-
 import { onMounted } from 'vue';
 
 onMounted(() => {
@@ -117,7 +104,18 @@ onMounted(() => {
         functions.value.push({
           name: 'scanCode',
           description: 'description2',
-          func: scanCode(liff),
+          func: () => {
+            liff
+              .scanCodeV2()
+              .then(result => {
+                liffData.value.push(['scanCodeV2', result]);
+                // result = { value: "" }
+              })
+              .catch(error => {
+                console.log('error', error);
+                errorMessages.value.push(error.message);
+              });
+          },
         });
       })
       .catch(err => {
