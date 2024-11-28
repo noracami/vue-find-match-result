@@ -73,7 +73,7 @@ const isLiffInitialized = ref(false);
 const liffData = ref([]);
 const errorMessages = ref([]);
 
-const init = () => {
+const init = async () => {
   if (liff) {
     isLiffImport.value = true;
     if (liff.isInClient()) {
@@ -89,68 +89,96 @@ const init = () => {
     liffData.value.push(['isInClient', liff.isInClient()]);
     // Using a Promise object
     const liffId = '2006490154-P3132Qb6';
-    liff
-      .init({
-        liffId, // Use own liffId
-        withLoginOnExternalBrowser: false, // Enable automatic login process
-      })
-      .then(() => {
-        console.warn('liff init success');
-        isLiffInitialized.value = true;
-        liffData.value.push(['isLoggedIn', liff.isLoggedIn()]);
+    await liff.init({
+      liffId, // Use own liffId
+      withLoginOnExternalBrowser: false, // Enable automatic login process
+    });
 
-        // add login to functions
-        functions.value.push({
-          name: 'login',
-          description: 'line login',
-          func: () => {
-            const redirectUri = 'https://miao-bao.cc';
-            // liffData.value.push(['redirectUri', 'https://miao-bao.cc']);
-            if (!liff.isLoggedIn()) {
-              liff.login({ redirectUri });
-            } else {
-              liffData.value.push(['login', 'already logged in']);
-            }
-          },
-        });
-      })
-      .catch(error => {
-        console.error('liff init error', error);
-        errorMessages.value.push(error.message);
+    console.warn('liff init success');
+    isLiffInitialized.value = true;
+    const isLiffLoggedIn = await liff.isLoggedIn();
+    liffData.value.push(['isLoggedIn', isLiffLoggedIn]);
+
+    if (isLiffLoggedIn) {
+      const profile = await liff.getProfile();
+      liffData.value.push(['profile', profile]);
+
+      const userId = profile.userId;
+      liffData.value.push(['userId', userId]);
+    } else {
+      liffData.value.push(['isLoggedIn', 'not logged in']);
+      const line_login = () => {
+        const redirectUri = 'https://miao-bao.cc';
+        liff.login({ redirectUri });
+      };
+      functions.value.push({
+        name: 'line_login',
+        description: 'line login',
+        func: line_login,
       });
+    }
+
+    // // add login to functions
+    // functions.value.push({
+    //   name: 'login',
+    //   description: 'line login',
+    //   func: () => {
+    //     const redirectUri = 'https://miao-bao.cc';
+    //     // liffData.value.push(['redirectUri', 'https://miao-bao.cc']);
+    //     if (!liff.isLoggedIn()) {
+    //       liff.login({ redirectUri });
+    //     } else {
+    //       liffData.value.push(['login', 'already logged in']);
+    //     }
+    //   },
+    // });
+    // .catch(error => {
+    //   console.error('liff init error', error);
+    //   errorMessages.value.push(error.message);
+    // });
+
+    const scanCodeV2 = async () => {
+      let ret;
+      await liff
+        .scanCodeV2()
+        .then(result => {
+          liffData.value.push(['scanCodeV2', result]);
+          ret = result;
+        })
+        .catch(error => {
+          console.log('error', error);
+          errorMessages.value.push(error.message);
+          return undefined;
+        });
+      return ret;
+    };
 
     // add scanCode to functions
     functions.value.push({
       name: 'scanCode',
-      description: 'description2',
-      func: () => {
+      description: 'to scan QRcode',
+      func: async () => {
         // liffData.value.push(['test', new Date()]);
-        liff
-          .scanCodeV2()
-          .then(result => {
-            // result = { value: "" }
-            liffData.value.push(['scanCodeV2', result]);
-            const endpoint = 'https://reserve.lig.com.tw/api/v1/play_records';
-            fetch(endpoint, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                game: 'AG',
-                score: 100,
-                display_name: 'test',
-                line_id: 'test',
-              }),
-            })
-              .then(response => response.json())
-              .then(data => {
-                liffData.value.push(['api response', data]);
-              });
-          })
-          .catch(error => {
-            console.log('error', error);
-            errorMessages.value.push(error.message);
+        const score = await scanCodeV2();
+        liffData.value.push(['score', score]);
+        if (!score) return;
+
+        const endpoint = 'https://reserve.lig.com.tw/api/v1/play_records';
+        await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            game: 'AG',
+            score,
+            display_name: 'test',
+            line_id: 'test',
+          }),
+        })
+          .then(response => response.json())
+          .then(data => {
+            liffData.value.push(['api response', data]);
           });
       },
     });
