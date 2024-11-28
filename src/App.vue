@@ -204,7 +204,7 @@ onMounted(() => {
   liff.init(
     {
       liffId: liffId.value, // Use own liffId
-      withLoginOnExternalBrowser: false, // Enable automatic login process
+      withLoginOnExternalBrowser: true, // Enable automatic login process
     },
     init,
     error => {
