@@ -56,11 +56,11 @@ const aoe2companionApi = async () => {
 };
 
 const functions = ref([
-  {
-    name: 'aoe2companion',
-    description: 'description3',
-    func: aoe2companionApi,
-  },
+  // {
+  //   name: 'aoe2companion',
+  //   description: 'description3',
+  //   func: aoe2companionApi,
+  // },
 ]);
 
 const isLiffImport = ref(false);
@@ -86,13 +86,13 @@ onMounted(() => {
     // liffData.value['getLineVersion'] = liff.getLineVersion();
     // liffData.value['isInClient'] = liff.isInClient();
     // liffData.value['isLoggedIn'] = liff.isLoggedIn();
-    liffData.push(['getOS', liff.getOS()]);
-    liffData.push(['getAppLanguage', liff.getAppLanguage()]);
-    liffData.push(['getLanguage', liff.getLanguage()]);
-    liffData.push(['getVersion', liff.getVersion()]);
-    liffData.push(['getLineVersion', liff.getLineVersion()]);
-    liffData.push(['isInClient', liff.isInClient()]);
-    liffData.push(['isLoggedIn', liff.isLoggedIn()]);
+    liffData.value.push(['getOS', liff.getOS()]);
+    liffData.value.push(['getAppLanguage', liff.getAppLanguage()]);
+    liffData.value.push(['getLanguage', liff.getLanguage()]);
+    liffData.value.push(['getVersion', liff.getVersion()]);
+    liffData.value.push(['getLineVersion', liff.getLineVersion()]);
+    liffData.value.push(['isInClient', liff.isInClient()]);
+    liffData.value.push(['isLoggedIn', liff.isLoggedIn()]);
     liff
       .init({
         liffId: '2006490154-lNA0bEpk', // Use own liffId
@@ -161,16 +161,16 @@ onMounted(() => {
         </div>
       </div>
     </section>
-    <section class="bg-sky-300 p-3">
+    <section v-if="false" class="bg-sky-300 p-3">
       <div class="container mx-auto text-center">
         <p>content block</p>
         <textarea name="result" class="w-full p-2" v-model="result"></textarea>
       </div>
     </section>
-    <section class="text-center">
+    <section v-if="false" class="text-center">
       <pre>matches columns</pre>
     </section>
-    <section class="bg-gray-400">
+    <section v-if="false" class="bg-gray-400">
       <div
         class="container mx-auto grid grid-cols-1 gap-1 p-2 border-dashed border border-black"
         v-if="matches.length > 0"
@@ -286,7 +286,7 @@ onMounted(() => {
       </div>
       <pre class="text-start">{{ JSON.stringify(matches[0], null, 2) }}</pre>
     </section>
-    <section class="bg-purple-200 p-3">
+    <section v-if="false" class="bg-purple-200 p-3">
       <div class="container mx-auto text-center">
         <p>result block</p>
         <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
