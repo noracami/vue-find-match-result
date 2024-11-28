@@ -79,13 +79,6 @@ onMounted(() => {
     } else {
       console.warn('isInExternalBrowser');
     }
-    // liffData.value['getOS'] = liff.getOS();
-    // liffData.value['getAppLanguage'] = liff.getAppLanguage();
-    // liffData.value['getLanguage'] = liff.getLanguage();
-    // liffData.value['getVersion'] = liff.getVersion();
-    // liffData.value['getLineVersion'] = liff.getLineVersion();
-    // liffData.value['isInClient'] = liff.isInClient();
-    // liffData.value['isLoggedIn'] = liff.isLoggedIn();
     liffData.value.push(['getOS', liff.getOS()]);
     liffData.value.push(['getAppLanguage', liff.getAppLanguage()]);
     liffData.value.push(['getLanguage', liff.getLanguage()]);
@@ -312,7 +305,7 @@ onMounted(() => {
       </div>
     </section>
     <section class="bg-green-300 p-3 text-center">
-      <p v-for="(key, value) of liffData" :key="key">{{ key }}: {{ value }}</p>
+      <p v-for="[key, value] of liffData" :key="key">{{ key }}: {{ value }}</p>
     </section>
   </main>
 </template>
