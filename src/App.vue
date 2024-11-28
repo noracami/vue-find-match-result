@@ -2,6 +2,22 @@
 import { ref } from 'vue';
 import api from './stores/api';
 console.log('backend url', import.meta.env.VITE_BACKEND_URL);
+const liffId = '2006490154-oWD68EgW';
+const version_number = ref(localStorage.getItem('version_number') || 0);
+fetch(
+  `https://gist.githubusercontent.com/noracami/e317299b76908c29e59789c83daedb31/raw?t=${Date.now()}`,
+  { cache: 'no-cache' },
+)
+  .then(response => response.text())
+  .then(data => {
+    const version_number_from_api = parseInt(data);
+    console.log('data', version_number_from_api);
+    if (version_number_from_api > version_number.value) {
+      localStorage.setItem('version_number', version_number_from_api);
+      location.reload();
+    }
+    // version_number.value = data.version;
+  });
 const header = ref('the header');
 
 // const matchId = ref('')
@@ -88,7 +104,6 @@ const init = async () => {
     liffData.value.push(['getLineVersion', liff.getLineVersion()]);
     liffData.value.push(['isInClient', liff.isInClient()]);
     // Using a Promise object
-    const liffId = '2006490154-P3132Qb6';
     await liff.init({
       liffId, // Use own liffId
       withLoginOnExternalBrowser: false, // Enable automatic login process
@@ -387,6 +402,9 @@ onMounted(() => {
     </section>
     <section class="bg-red-300 p-3 text-center">
       <p v-for="message in errorMessages" :key="message">{{ message }}</p>
+    </section>
+    <section class="p-3 text-center">
+      <p>current version: v{{ version_number }}</p>
     </section>
   </main>
 </template>
